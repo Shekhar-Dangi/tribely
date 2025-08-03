@@ -20,10 +20,8 @@ export default defineSchema({
           v.array(
             v.object({
               exerciseName: v.string(), // "Bench Press", "5K Run", "Triceps Pushdown", etc.
-              value: v.number(),
-              unit: v.string(), // "kg", "lbs", "minutes", "seconds", etc.
+              subtitle: v.string(),
               date: v.number(), // when this PR was achieved
-              notes: v.optional(v.string()),
             })
           )
         ),

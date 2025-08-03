@@ -79,10 +79,8 @@ export const completeOnboarding = mutation({
           v.array(
             v.object({
               exerciseName: v.string(),
-              value: v.number(),
-              unit: v.string(),
+              subtitle: v.string(),
               date: v.number(),
-              notes: v.optional(v.string()),
             })
           )
         ),

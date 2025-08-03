@@ -1,26 +1,21 @@
 import { Stack } from "expo-router";
 import { View, Text, StyleSheet } from "react-native";
 import { COLORS, FONTS, SPACING } from "../../../constants/theme";
+import { OnboardingProvider } from "../../../contexts/OnboardingContext";
 
 export default function OnboardingLayout() {
   return (
-    <View style={styles.container}>
-      {/* Progress Header */}
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Complete Your Profile</Text>
-        <Text style={styles.headerSubtitle}>
-          Help us personalize your experience
-        </Text>
+    <OnboardingProvider>
+      <View style={styles.container}>
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="personal-stats" />
+          <Stack.Screen name="category" />
+          <Stack.Screen name="experiences" />
+          <Stack.Screen name="certifications" />
+          <Stack.Screen name="social-links" />
+        </Stack>
       </View>
-
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="personal-stats" />
-        <Stack.Screen name="category" />
-        <Stack.Screen name="experiences" />
-        <Stack.Screen name="certifications" />
-        <Stack.Screen name="social-links" />
-      </Stack>
-    </View>
+    </OnboardingProvider>
   );
 }
 

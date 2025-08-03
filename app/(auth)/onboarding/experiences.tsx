@@ -1,5 +1,13 @@
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  Alert,
+} from "react-native";
 import { router } from "expo-router";
+import { useState, useEffect } from "react";
 import {
   COLORS,
   FONTS,
@@ -7,8 +15,49 @@ import {
   BORDER_RADIUS,
 } from "../../../constants/theme";
 
+import {
+  ProgressIndicator,
+  OnboardingHeader,
+  FormCard,
+  NavigationButtons,
+  ExperienceEntry,
+} from "../../../components/onboarding";
+import {
+  useOnboardingData,
+  Experience,
+} from "../../../contexts/OnboardingContext";
+import { validateExperiences } from "../../../utils/validation";
+
 export default function Experiences() {
+  const { data, updateExperiences } = useOnboardingData();
+  const [experiences, setExperiences] = useState<Experience[]>(
+    data.experiences
+  );
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
+
+  // Load saved data when component mounts
+  useEffect(() => {
+    setExperiences(data.experiences);
+  }, [data.experiences]);
+
+  // Save data whenever state changes
+  useEffect(() => {
+    updateExperiences(experiences);
+  }, [experiences, updateExperiences]);
+
   const handleNext = () => {
+    // Validate before proceeding
+    const validation = validateExperiences(experiences);
+
+    if (!validation.isValid) {
+      setValidationErrors(validation.errors);
+      Alert.alert("Validation Error", validation.errors.join("\n"), [
+        { text: "OK" },
+      ]);
+      return;
+    }
+
+    setValidationErrors([]);
     router.push("/(auth)/onboarding/certifications");
   };
 
@@ -17,51 +66,107 @@ export default function Experiences() {
   };
 
   const handleSkip = () => {
+    // Save current data and proceed
+    updateExperiences(experiences);
     router.push("/(auth)/onboarding/certifications");
+  };
+
+  const addExperience = () => {
+    setExperiences([
+      ...experiences,
+      {
+        title: "",
+        subtitle: "",
+        description: "",
+        startDate: "",
+        endDate: "",
+        isCurrent: false,
+      },
+    ]);
+  };
+
+  const removeExperience = (index: number) => {
+    if (experiences.length > 1) {
+      setExperiences(experiences.filter((_, i) => i !== index));
+    }
+  };
+
+  const updateExperience = (
+    index: number,
+    field: string,
+    value: string | boolean
+  ) => {
+    const updatedExperiences = experiences.map((exp, i) => {
+      if (i === index) {
+        const updated = { ...exp, [field]: value };
+        // If setting isCurrent to true, clear endDate
+        if (field === "isCurrent" && value === true) {
+          updated.endDate = "";
+        }
+        return updated;
+      }
+      return exp;
+    });
+    setExperiences(updatedExperiences);
   };
 
   return (
     <View style={styles.container}>
       {/* Progress Indicator */}
-      <View style={styles.progressContainer}>
-        <Text style={styles.progressText}>Step 3 of 5</Text>
-        <View style={styles.progressBar}>
-          <View style={[styles.progressFill, { width: "60%" }]} />
-        </View>
-      </View>
+      <ProgressIndicator currentStep={3} totalSteps={5} progress={60} />
 
-      {/* Content */}
-      <View style={styles.content}>
-        <Text style={styles.title}>Experiences</Text>
-        <Text style={styles.subtitle}>
-          Add your fitness journey and professional experience
-        </Text>
+      <ScrollView
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Header */}
+        <OnboardingHeader
+          title="Experiences"
+          subtitle="Add your fitness journey and professional experience"
+        />
 
-        <View style={styles.placeholder}>
-          <Text style={styles.placeholderText}>💼 Experiences Screen</Text>
-          <Text style={styles.description}>
-            LinkedIn-style experience entries:{"\n\n"}• Logo upload{"\n"}•
-            Header (Company/Gym name){"\n"}• Subtitle (Position/Role){"\n"}•
-            Date range (Start - End){"\n"}• Multiple entries allowed{"\n\n"}
-            Example: "Personal Trainer at Gold's Gym"
-          </Text>
-        </View>
-      </View>
+        {/* Error Display */}
+        {validationErrors.length > 0 && (
+          <View style={styles.errorContainer}>
+            {validationErrors.map((error, index) => (
+              <Text key={index} style={styles.errorText}>
+                • {error}
+              </Text>
+            ))}
+          </View>
+        )}
+
+        {/* Experiences Card */}
+        <FormCard
+          title="Professional Experience"
+          subtitle="Share your fitness and career journey"
+        >
+          {experiences.map((experience, index) => (
+            <ExperienceEntry
+              key={index}
+              experience={experience}
+              index={index}
+              onUpdate={updateExperience}
+              onRemove={removeExperience}
+              canRemove={experiences.length > 1}
+            />
+          ))}
+
+          <TouchableOpacity style={styles.addButton} onPress={addExperience}>
+            <Text style={styles.addButtonText}>+ Add Another Experience</Text>
+          </TouchableOpacity>
+        </FormCard>
+      </ScrollView>
 
       {/* Navigation Buttons */}
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-          <Text style={styles.backButtonText}>Back</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
-          <Text style={styles.skipButtonText}>Skip</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
-          <Text style={styles.nextButtonText}>Next</Text>
-        </TouchableOpacity>
-      </View>
+      <NavigationButtons
+        onSkip={handleSkip}
+        onBack={handleBack}
+        onNext={handleNext}
+        nextDisabled={!validateExperiences(experiences).isValid}
+        showSkip={true}
+        showBack={true}
+      />
     </View>
   );
 }
@@ -71,108 +176,45 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.white,
   },
-  progressContainer: {
-    paddingHorizontal: SPACING.xl,
-    paddingVertical: SPACING.lg,
+  scrollView: {
+    flex: 1,
   },
-  progressText: {
+  addButton: {
+    borderWidth: 2,
+    borderColor: COLORS.secondary,
+    borderStyle: "dashed",
+    borderRadius: BORDER_RADIUS.md,
+    paddingVertical: SPACING.md,
+    alignItems: "center",
+    marginTop: SPACING.sm,
+  },
+  addButtonText: {
+    fontSize: FONTS.sizes.md,
+    ...FONTS.medium,
+    color: COLORS.secondary,
+  },
+  exampleText: {
     fontSize: FONTS.sizes.sm,
-    ...FONTS.medium,
-    color: COLORS.textSecondary,
-    marginBottom: SPACING.sm,
-  },
-  progressBar: {
-    height: 4,
-    backgroundColor: COLORS.lightGray,
-    borderRadius: 2,
-    overflow: "hidden",
-  },
-  progressFill: {
-    height: "100%",
-    backgroundColor: COLORS.secondary,
-    borderRadius: 2,
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: SPACING.xl,
-    paddingTop: SPACING.xl,
-  },
-  title: {
-    fontSize: FONTS.sizes.xxl,
-    ...FONTS.bold,
-    color: COLORS.primary,
-    marginBottom: SPACING.sm,
-  },
-  subtitle: {
-    fontSize: FONTS.sizes.md,
-    ...FONTS.regular,
-    color: COLORS.textSecondary,
-    marginBottom: SPACING.xl,
-  },
-  placeholder: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: COLORS.background,
-    borderRadius: BORDER_RADIUS.lg,
-    padding: SPACING.xl,
-  },
-  placeholderText: {
-    fontSize: FONTS.sizes.xl,
-    ...FONTS.bold,
-    color: COLORS.primary,
-    marginBottom: SPACING.lg,
-  },
-  description: {
-    fontSize: FONTS.sizes.md,
     ...FONTS.regular,
     color: COLORS.text,
-    textAlign: "center",
-    lineHeight: 24,
+    lineHeight: 20,
   },
-  buttonContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingHorizontal: SPACING.xl,
-    paddingVertical: SPACING.xl,
-    gap: SPACING.sm,
+  exampleBold: {
+    ...FONTS.bold,
+    color: COLORS.primary,
   },
-  backButton: {
-    flex: 1,
-    paddingVertical: SPACING.md,
-    alignItems: "center",
-    borderRadius: BORDER_RADIUS.md,
-    borderWidth: 1,
-    borderColor: COLORS.border,
+  // Error Styles
+  errorContainer: {
+    backgroundColor: COLORS.error ? `${COLORS.error}10` : "#FF444410",
+    borderRadius: BORDER_RADIUS.sm,
+    padding: SPACING.sm,
+    marginHorizontal: SPACING.xl,
+    marginBottom: SPACING.md,
   },
-  backButtonText: {
-    fontSize: FONTS.sizes.md,
-    ...FONTS.medium,
-    color: COLORS.text,
-  },
-  skipButton: {
-    flex: 1,
-    paddingVertical: SPACING.md,
-    alignItems: "center",
-    borderRadius: BORDER_RADIUS.md,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-  },
-  skipButtonText: {
-    fontSize: FONTS.sizes.md,
-    ...FONTS.medium,
-    color: COLORS.text,
-  },
-  nextButton: {
-    flex: 1,
-    paddingVertical: SPACING.md,
-    alignItems: "center",
-    borderRadius: BORDER_RADIUS.md,
-    backgroundColor: COLORS.secondary,
-  },
-  nextButtonText: {
-    fontSize: FONTS.sizes.md,
-    ...FONTS.medium,
-    color: COLORS.white,
+  errorText: {
+    fontSize: FONTS.sizes.sm,
+    ...FONTS.regular,
+    color: COLORS.error || "#FF4444",
+    lineHeight: 18,
   },
 });
