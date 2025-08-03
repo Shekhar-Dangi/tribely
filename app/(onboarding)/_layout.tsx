@@ -1,7 +1,7 @@
 import { Stack } from "expo-router";
 import { View, Text, StyleSheet } from "react-native";
-import { COLORS, FONTS, SPACING } from "../../../constants/theme";
-import { OnboardingProvider } from "../../../contexts/OnboardingContext";
+import { COLORS, FONTS, SPACING } from "../../constants/theme";
+import { OnboardingProvider } from "../../contexts/OnboardingContext";
 
 export default function OnboardingLayout() {
   return (

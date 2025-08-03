@@ -8,46 +8,41 @@ import {
 } from "react-native";
 import { router } from "expo-router";
 import { useState, useEffect } from "react";
-import {
-  COLORS,
-  FONTS,
-  SPACING,
-  BORDER_RADIUS,
-} from "../../../constants/theme";
+import { COLORS, FONTS, SPACING, BORDER_RADIUS } from "../../constants/theme";
 
 import {
   ProgressIndicator,
   OnboardingHeader,
   FormCard,
   NavigationButtons,
-  CertificationEntry,
-} from "../../../components/onboarding";
+  ExperienceEntry,
+} from "../../components/onboarding";
 import {
   useOnboardingData,
-  Certification,
-} from "../../../contexts/OnboardingContext";
-import { validateCertifications } from "../../../utils/validation";
+  Experience,
+} from "../../contexts/OnboardingContext";
+import { validateExperiences } from "../../utils/validation";
 
-export default function Certifications() {
-  const { data, updateCertifications } = useOnboardingData();
-  const [certifications, setCertifications] = useState<Certification[]>(
-    data.certifications
+export default function Experiences() {
+  const { data, updateExperiences } = useOnboardingData();
+  const [experiences, setExperiences] = useState<Experience[]>(
+    data.experiences
   );
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
   // Load saved data when component mounts
   useEffect(() => {
-    setCertifications(data.certifications);
-  }, [data.certifications]);
+    setExperiences(data.experiences);
+  }, [data.experiences]);
 
   // Save data whenever state changes
   useEffect(() => {
-    updateCertifications(certifications);
-  }, [certifications, updateCertifications]);
+    updateExperiences(experiences);
+  }, [experiences, updateExperiences]);
 
   const handleNext = () => {
     // Validate before proceeding
-    const validation = validateCertifications(certifications);
+    const validation = validateExperiences(experiences);
 
     if (!validation.isValid) {
       setValidationErrors(validation.errors);
@@ -58,7 +53,7 @@ export default function Certifications() {
     }
 
     setValidationErrors([]);
-    router.push("/(auth)/onboarding/social-links");
+    router.push("/(onboarding)/certifications");
   };
 
   const handleBack = () => {
@@ -67,54 +62,53 @@ export default function Certifications() {
 
   const handleSkip = () => {
     // Save current data and proceed
-    updateCertifications(certifications);
-    router.push("/(auth)/onboarding/social-links");
+    updateExperiences(experiences);
+    router.push("/(onboarding)/certifications");
   };
 
-  const addCertification = () => {
-    setCertifications([
-      ...certifications,
+  const addExperience = () => {
+    setExperiences([
+      ...experiences,
       {
         title: "",
         subtitle: "",
         description: "",
-        issueDate: "",
-        expiryDate: "",
-        credentialId: "",
-        isActive: false,
+        startDate: "",
+        endDate: "",
+        isCurrent: false,
       },
     ]);
   };
 
-  const removeCertification = (index: number) => {
-    if (certifications.length > 1) {
-      setCertifications(certifications.filter((_, i) => i !== index));
+  const removeExperience = (index: number) => {
+    if (experiences.length > 1) {
+      setExperiences(experiences.filter((_, i) => i !== index));
     }
   };
 
-  const updateCertification = (
+  const updateExperience = (
     index: number,
     field: string,
     value: string | boolean
   ) => {
-    const updatedCertifications = certifications.map((cert, i) => {
+    const updatedExperiences = experiences.map((exp, i) => {
       if (i === index) {
-        const updated = { ...cert, [field]: value };
-        // If setting isActive to true, clear expiryDate
-        if (field === "isActive" && value === true) {
-          updated.expiryDate = "";
+        const updated = { ...exp, [field]: value };
+        // If setting isCurrent to true, clear endDate
+        if (field === "isCurrent" && value === true) {
+          updated.endDate = "";
         }
         return updated;
       }
-      return cert;
+      return exp;
     });
-    setCertifications(updatedCertifications);
+    setExperiences(updatedExperiences);
   };
 
   return (
     <View style={styles.container}>
       {/* Progress Indicator */}
-      <ProgressIndicator currentStep={4} totalSteps={5} progress={80} />
+      <ProgressIndicator currentStep={3} totalSteps={5} progress={60} />
 
       <ScrollView
         style={styles.scrollView}
@@ -122,8 +116,8 @@ export default function Certifications() {
       >
         {/* Header */}
         <OnboardingHeader
-          title="Certifications"
-          subtitle="Showcase your fitness credentials and achievements"
+          title="Experiences"
+          subtitle="Add your fitness journey and professional experience"
         />
 
         {/* Error Display */}
@@ -137,26 +131,24 @@ export default function Certifications() {
           </View>
         )}
 
-        {/* Certifications Card */}
+        {/* Experiences Card */}
         <FormCard
-          title="Professional Certifications"
-          subtitle="Add your fitness certifications and credentials"
+          title="Professional Experience"
+          subtitle="Share your fitness and career journey"
         >
-          {certifications.map((certification, index) => (
-            <CertificationEntry
+          {experiences.map((experience, index) => (
+            <ExperienceEntry
               key={index}
-              certification={certification}
+              experience={experience}
               index={index}
-              onUpdate={updateCertification}
-              onRemove={removeCertification}
-              canRemove={certifications.length > 1}
+              onUpdate={updateExperience}
+              onRemove={removeExperience}
+              canRemove={experiences.length > 1}
             />
           ))}
 
-          <TouchableOpacity style={styles.addButton} onPress={addCertification}>
-            <Text style={styles.addButtonText}>
-              + Add Another Certification
-            </Text>
+          <TouchableOpacity style={styles.addButton} onPress={addExperience}>
+            <Text style={styles.addButtonText}>+ Add Another Experience</Text>
           </TouchableOpacity>
         </FormCard>
       </ScrollView>
@@ -166,7 +158,7 @@ export default function Certifications() {
         onSkip={handleSkip}
         onBack={handleBack}
         onNext={handleNext}
-        nextDisabled={!validateCertifications(certifications).isValid}
+        nextDisabled={!validateExperiences(experiences).isValid}
         showSkip={true}
         showBack={true}
       />

@@ -3,24 +3,42 @@ import { View, Text, StyleSheet, ActivityIndicator } from "react-native";
 import { useRouter } from "expo-router";
 import { useAuth } from "@clerk/clerk-expo";
 import { COLORS, FONTS, SPACING } from "../constants/theme";
+import useOnBoarding from "../hooks/useOnBoarding";
 
 export default function SSOCallback() {
   const router = useRouter();
   const { isSignedIn, isLoaded } = useAuth();
+  const { serverFault, status } = useOnBoarding();
 
   useEffect(() => {
     // Add a small delay to let auth state settle
     const timer = setTimeout(() => {
+      console.log(
+        "SSO Callback - status:",
+        status,
+        "isSignedIn:",
+        isSignedIn,
+        "isLoaded:",
+        isLoaded
+      );
       if (isLoaded) {
         if (isSignedIn) {
-          router.replace("/(tabs)/home");
+          // Wait for status to be loaded before redirecting
+          if (status !== undefined) {
+            if (status === true) {
+              router.replace("/(tabs)/home");
+            } else {
+              router.replace("/(onboarding)/personal-stats");
+            }
+          }
+          // If status is still undefined, wait for next render
         } else {
-          router.replace("/(auth)/login");
+          router.replace("/");
         }
       }
-    }, 500);
+    }, 1500);
     return () => clearTimeout(timer);
-  }, [isLoaded, isSignedIn, router]);
+  }, [isLoaded, isSignedIn, status, router]);
 
   return (
     <View style={styles.container}>

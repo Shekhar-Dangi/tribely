@@ -19,14 +19,15 @@ import {
 } from "../../constants/theme";
 
 import { useAuth, useSSO } from "@clerk/clerk-expo";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
+import useOnBoarding from "../../hooks/useOnBoarding";
 
 export default function Login() {
   const { startSSOFlow } = useSSO();
-  const { isSignedIn, isLoaded } = useAuth();
-  if (isLoaded && isSignedIn) {
-    <Redirect href={"/"} />;
-  }
+  const { isSignedIn } = useAuth();
+  console.log("login page");
+  const { serverFault, status } = useOnBoarding();
+  console.log(isSignedIn);
 
   const handleGoogleSignIn = useCallback(async () => {
     try {
@@ -39,8 +40,7 @@ export default function Login() {
 
       // If sign in was successful, set the active session
       if (createdSessionId && setActive) {
-        setActive({ session: createdSessionId });
-        // Don't manually redirect - let the auth state change trigger automatic redirects
+        setActive!({ session: createdSessionId });
       } else {
         // If there is no `createdSessionId`,
         // there are missing requirements, such as MFA
@@ -51,6 +51,15 @@ export default function Login() {
       console.error(JSON.stringify(err, null, 2));
     }
   }, []);
+
+  if (isSignedIn && status !== undefined) {
+    if (status === true) {
+      return <Redirect href="/(tabs)/home" />;
+    } else {
+      return <Redirect href="/(onboarding)/personal-stats" />;
+    }
+  }
+
   return (
     <View style={styles.scrollContainer}>
       <View style={styles.heroContainer}>

@@ -9,14 +9,9 @@ import {
 import { router } from "expo-router";
 import { useUser } from "@clerk/clerk-expo";
 import { useMutation } from "convex/react";
-import { api } from "../../../convex/_generated/api";
+import { api } from "../../convex/_generated/api";
 import { useState, useEffect, useCallback } from "react";
-import {
-  COLORS,
-  FONTS,
-  SPACING,
-  BORDER_RADIUS,
-} from "../../../constants/theme";
+import { COLORS, FONTS, SPACING, BORDER_RADIUS } from "../../constants/theme";
 
 import {
   ProgressIndicator,
@@ -24,10 +19,10 @@ import {
   FormCard,
   NavigationButtons,
   SocialLinkEntry,
-} from "../../../components/onboarding";
-import { useOnboardingData } from "../../../contexts/OnboardingContext";
-import { validateSocialLinks } from "../../../utils/validation";
-import { transformOnboardingDataForSubmission } from "../../../utils/dataTransformation";
+} from "../../components/onboarding";
+import { useOnboardingData } from "../../contexts/OnboardingContext";
+import { validateSocialLinks } from "../../utils/validation";
+import { transformOnboardingDataForSubmission } from "../../utils/dataTransformation";
 
 type SocialLinksType = {
   instagram: string;

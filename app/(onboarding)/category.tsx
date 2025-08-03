@@ -8,15 +8,15 @@ import {
   SPACING,
   BORDER_RADIUS,
   SHADOWS,
-} from "../../../constants/theme";
+} from "../../constants/theme";
 
-import ProgressIndicator from "../../../components/onboarding/ProgressIndicator";
-import OnboardingHeader from "../../../components/onboarding/OnboardingHeader";
-import SelectionCard from "../../../components/onboarding/SelectionCard";
-import NavigationButtons from "../../../components/onboarding/NavigationButtons";
-import FormCard from "../../../components/onboarding/FormCard";
-import { useOnboardingData } from "../../../contexts/OnboardingContext";
-import { validateCategory } from "../../../utils/validation";
+import ProgressIndicator from "../../components/onboarding/ProgressIndicator";
+import OnboardingHeader from "../../components/onboarding/OnboardingHeader";
+import SelectionCard from "../../components/onboarding/SelectionCard";
+import NavigationButtons from "../../components/onboarding/NavigationButtons";
+import FormCard from "../../components/onboarding/FormCard";
+import { useOnboardingData } from "../../contexts/OnboardingContext";
+import { validateCategory } from "../../utils/validation";
 
 type CategoryType = "individual" | "gym" | "brand" | null;
 
@@ -85,13 +85,13 @@ export default function Category() {
     }
 
     setValidationErrors([]);
-    router.push("/(auth)/onboarding/experiences");
+    router.push("/(onboarding)/experiences");
   };
 
   const handleSkip = () => {
     // Save current data and proceed
     updateCategory(selectedCategory);
-    router.push("/(auth)/onboarding/experiences");
+    router.push("/(onboarding)/experiences");
   };
 
   return (

@@ -16,18 +16,18 @@ import {
   SPACING,
   BORDER_RADIUS,
   SHADOWS,
-} from "../../../constants/theme";
+} from "../../constants/theme";
 import { Ionicons } from "@expo/vector-icons";
 
-import ProgressIndicator from "../../../components/onboarding/ProgressIndicator";
-import OnboardingHeader from "../../../components/onboarding/OnboardingHeader";
-import FormCard from "../../../components/onboarding/FormCard";
-import NavigationButtons from "../../../components/onboarding/NavigationButtons";
+import ProgressIndicator from "../../components/onboarding/ProgressIndicator";
+import OnboardingHeader from "../../components/onboarding/OnboardingHeader";
+import FormCard from "../../components/onboarding/FormCard";
+import NavigationButtons from "../../components/onboarding/NavigationButtons";
 import {
   useOnboardingData,
   PersonalRecord,
-} from "../../../contexts/OnboardingContext";
-import { validatePersonalStats } from "../../../utils/validation";
+} from "../../contexts/OnboardingContext";
+import { validatePersonalStats } from "../../utils/validation";
 
 export default function PersonalStats() {
   const { data, updatePersonalStats } = useOnboardingData();
@@ -75,7 +75,7 @@ export default function PersonalStats() {
     }
 
     setValidationErrors([]);
-    router.push("/(auth)/onboarding/category");
+    router.push("/(onboarding)/category");
   };
 
   const handleSkip = () => {
@@ -86,7 +86,7 @@ export default function PersonalStats() {
       bodyFat,
       personalRecords: prs,
     });
-    router.push("/(auth)/onboarding/category");
+    router.push("/(onboarding)/category");
   };
 
   const addPR = () => {

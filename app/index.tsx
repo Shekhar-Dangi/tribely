@@ -10,9 +10,9 @@ import { LinearGradient } from "expo-linear-gradient";
 import { COLORS, FONTS, SPACING, SHADOWS } from "../constants/theme";
 import { Link, Redirect } from "expo-router";
 import { useAuth, useUser } from "@clerk/clerk-expo";
+import useOnBoarding from "../hooks/useOnBoarding";
 import { useQuery } from "convex/react";
 import { api } from "../convex/_generated/api";
-import useOnBoarding from "../hooks/useOnBoarding";
 
 const { height } = Dimensions.get("window");
 
@@ -31,16 +31,16 @@ export default function Welcome() {
   // Wait for Clerk to load
   if (!isLoaded) {
     return (
-      <View style={styles.loadingContainer}>
-        <Text style={styles.loadingText}>Loading...</Text>
+      <View>
+        <Text>Loading...</Text>
       </View>
     );
   }
 
-  if (!loading) {
-    if (!serverFault && status) return <Redirect href="/(tabs)/home" />;
-    else if (!serverFault && !status)
-      return <Redirect href="/(auth)/onboarding/personal-stats" />;
+  if (!loading && isSignedIn) {
+    if (status) return <Redirect href="/(tabs)/home" />;
+    else if (status === false)
+      return <Redirect href="/(onboarding)/personal-stats" />;
   }
   return (
     <ImageBackground
@@ -144,16 +144,5 @@ const styles = StyleSheet.create({
     fontSize: FONTS.sizes.md,
     ...FONTS.bold,
     color: COLORS.primary,
-  },
-  loadingContainer: {
-    flex: 1,
-    backgroundColor: COLORS.primary,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  loadingText: {
-    fontSize: FONTS.sizes.lg,
-    color: COLORS.white,
-    ...FONTS.medium,
   },
 });

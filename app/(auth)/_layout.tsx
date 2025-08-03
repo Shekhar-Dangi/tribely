@@ -6,15 +6,12 @@ import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 
 export default function AuthLayout() {
+  console.log("layou");
   return (
     <Stack>
       <Stack.Screen
         name="login"
         options={{ title: "Login", headerShown: false }}
-      />
-      <Stack.Screen
-        name="onboarding"
-        options={{ title: "Onboarding", headerShown: false }}
       />
     </Stack>
   );
