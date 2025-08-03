@@ -23,8 +23,10 @@ import { useCallback, useEffect } from "react";
 
 export default function Login() {
   const { startSSOFlow } = useSSO();
-
-  const { isLoaded, isSignedIn } = useAuth();
+  const { isSignedIn, isLoaded } = useAuth();
+  if (isLoaded && isSignedIn) {
+    <Redirect href={"/"} />;
+  }
 
   const handleGoogleSignIn = useCallback(async () => {
     try {

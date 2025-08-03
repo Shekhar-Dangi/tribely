@@ -9,12 +9,24 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { COLORS, FONTS, SPACING, SHADOWS } from "../constants/theme";
 import { Link, Redirect } from "expo-router";
-import { useAuth } from "@clerk/clerk-expo";
+import { useAuth, useUser } from "@clerk/clerk-expo";
+import { useQuery } from "convex/react";
+import { api } from "../convex/_generated/api";
+import useOnBoarding from "../hooks/useOnBoarding";
 
 const { height } = Dimensions.get("window");
 
 export default function Welcome() {
   const { isSignedIn, isLoaded } = useAuth();
+  const { user } = useUser();
+  const { loading, serverFault, status } = useOnBoarding();
+
+  // Get user data from Convex to check onboarding status
+  const convexUser = useQuery(
+    api.users.getUserByClerkId,
+    user?.id ? { clerkId: user.id } : "skip"
+  );
+  console.log(convexUser);
 
   // Wait for Clerk to load
   if (!isLoaded) {
@@ -25,11 +37,11 @@ export default function Welcome() {
     );
   }
 
-  // If user is already signed in, redirect to main app
-  if (isSignedIn) {
-    return <Redirect href="/(tabs)/home" />;
+  if (!loading) {
+    if (!serverFault && status) return <Redirect href="/(tabs)/home" />;
+    else if (!serverFault && !status)
+      return <Redirect href="/(auth)/onboarding/personal-stats" />;
   }
-
   return (
     <ImageBackground
       source={require("../assets/onboard.jpg")}

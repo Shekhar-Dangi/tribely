@@ -3,6 +3,7 @@ import { tokenCache } from "@clerk/clerk-expo/token-cache";
 import { Stack } from "expo-router";
 import { useAuth } from "@clerk/clerk-expo";
 import { View, Text, StyleSheet } from "react-native";
+import { ConvexProvider, ConvexReactClient } from "convex/react";
 
 const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!;
 
@@ -11,6 +12,9 @@ if (!publishableKey) {
     "Missing Publishable Key. Please set EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY in your .env"
   );
 }
+
+// Initialize Convex client
+const convex = new ConvexReactClient(process.env.EXPO_PUBLIC_CONVEX_URL!);
 
 function InitialLayout() {
   const { isLoaded } = useAuth();
@@ -40,11 +44,13 @@ function InitialLayout() {
 
 export default function RootLayout() {
   return (
-    <ClerkProvider tokenCache={tokenCache} publishableKey={publishableKey}>
-      <ClerkLoaded>
-        <InitialLayout />
-      </ClerkLoaded>
-    </ClerkProvider>
+    <ConvexProvider client={convex}>
+      <ClerkProvider tokenCache={tokenCache} publishableKey={publishableKey}>
+        <ClerkLoaded>
+          <InitialLayout />
+        </ClerkLoaded>
+      </ClerkProvider>
+    </ConvexProvider>
   );
 }
 
