@@ -3,6 +3,7 @@ import { Link, router } from "expo-router";
 import { useClerk, useUser } from "@clerk/clerk-expo";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
+import { useState } from "react";
 import {
   COLORS,
   FONTS,
@@ -10,10 +11,12 @@ import {
   SHADOWS,
   BORDER_RADIUS,
 } from "../../constants/theme";
+import { DataTab } from "../../components/profile";
 
 export default function Profile() {
   const { signOut } = useClerk();
   const { user: clerkUser } = useUser();
+  const [activeTab, setActiveTab] = useState("posts");
 
   // Get user data from Convex
   const convexUser = useQuery(
@@ -66,24 +69,61 @@ export default function Profile() {
           </View>
         </View>
       </View>
-      {/* Content Container - Placeholder for now */}
-      <View style={styles.contentContainer}>
-        <Text style={styles.contentPlaceholder}>
-          Profile content will go here (tabs for Posts & Data)
-        </Text>
+
+      {/* Tab Navigation */}
+      <View style={styles.tabContainer}>
+        <TouchableOpacity
+          style={[
+            styles.tabButton,
+            activeTab === "posts" && styles.activeTabButton,
+          ]}
+          onPress={() => setActiveTab("posts")}
+        >
+          <Text
+            style={[
+              styles.tabText,
+              activeTab === "posts" && styles.activeTabText,
+            ]}
+          >
+            Posts
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[
+            styles.tabButton,
+            activeTab === "data" && styles.activeTabButton,
+          ]}
+          onPress={() => setActiveTab("data")}
+        >
+          <Text
+            style={[
+              styles.tabText,
+              activeTab === "data" && styles.activeTabText,
+            ]}
+          >
+            Data
+          </Text>
+        </TouchableOpacity>
       </View>
 
-      {/* Bottom Actions */}
-      <View style={styles.bottomActions}>
-        <TouchableOpacity
-          onPress={async () => {
-            await signOut();
-            router.replace("/");
-          }}
-          style={styles.logoutButton}
-        >
-          <Text style={styles.logoutButtonText}>Log Out</Text>
-        </TouchableOpacity>
+      {/* Tab Content */}
+      <View style={styles.tabContent}>
+        {activeTab === "posts" ? (
+          <View style={styles.contentContainer}>
+            <Text style={styles.contentPlaceholder}>
+              User Posts will go here
+            </Text>
+          </View>
+        ) : (
+          <DataTab
+            bio={convexUser?.bio}
+            stats={convexUser?.stats}
+            experiences={convexUser?.experiences}
+            certifications={convexUser?.certifications}
+            affiliation={convexUser?.affiliation}
+          />
+        )}
       </View>
     </View>
   );
@@ -205,25 +245,37 @@ const styles = StyleSheet.create({
   contentPlaceholder: {
     fontSize: FONTS.sizes.md,
     color: COLORS.textMuted,
-    textAlign: "left",
+    textAlign: "center",
     ...FONTS.regular,
   },
 
-  // Bottom Actions
-  bottomActions: {
-    padding: SPACING.lg,
-    borderTopWidth: 1,
-    borderTopColor: COLORS.border,
+  // Tab Navigation
+  tabContainer: {
+    flexDirection: "row",
+    backgroundColor: COLORS.white,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
   },
-  logoutButton: {
-    backgroundColor: COLORS.error || "#FF4444",
-    padding: SPACING.md,
-    borderRadius: BORDER_RADIUS.md,
+  tabButton: {
+    flex: 1,
+    paddingVertical: SPACING.md,
     alignItems: "center",
+    borderBottomWidth: 2,
+    borderBottomColor: "transparent",
   },
-  logoutButtonText: {
-    color: COLORS.white,
+  activeTabButton: {
+    borderBottomColor: COLORS.secondary,
+  },
+  tabText: {
     fontSize: FONTS.sizes.md,
+    color: COLORS.textSecondary,
     ...FONTS.medium,
+  },
+  activeTabText: {
+    color: COLORS.secondary,
+    ...FONTS.bold,
+  },
+  tabContent: {
+    flex: 1,
   },
 });

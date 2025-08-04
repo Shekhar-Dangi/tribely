@@ -1,6 +1,8 @@
 import { Tabs, Redirect } from "expo-router";
 import { useAuth } from "@clerk/clerk-expo";
 import { View, Text, StyleSheet } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { COLORS } from "../../constants/theme";
 
 export default function TabsLayout() {
   const { isSignedIn, isLoaded } = useAuth();
@@ -20,46 +22,88 @@ export default function TabsLayout() {
   }
 
   return (
-    <Tabs>
-      <Tabs.Screen
-        name="index"
-        options={{
-          href: null, // Hide from tab bar since it just redirects
-        }}
-      />
+    <Tabs
+      screenOptions={{
+        tabBarActiveTintColor: COLORS.secondary, // Electric blue for active tab
+        tabBarInactiveTintColor: "#666666", // Gray for inactive tabs
+        tabBarStyle: {
+          backgroundColor: "#ffffff", // White background
+          borderTopWidth: 1,
+          borderTopColor: "#e0e0e0", // Light gray border
+          height: 60,
+          paddingBottom: 8,
+          paddingTop: 8,
+        },
+        tabBarLabelStyle: {
+          fontSize: 12,
+          fontWeight: "500",
+        },
+      }}
+    >
       <Tabs.Screen
         name="home"
         options={{
           title: "Home",
-          tabBarIcon: () => null, // We'll add icons later
+          tabBarIcon: ({ focused, color, size }) => (
+            <Ionicons
+              name={focused ? "home" : "home-outline"}
+              size={size}
+              color={color}
+            />
+          ),
         }}
       />
       <Tabs.Screen
         name="explore"
         options={{
           title: "Explore",
-          tabBarIcon: () => null,
+          tabBarIcon: ({ focused, color, size }) => (
+            <Ionicons
+              name={focused ? "search" : "search-outline"}
+              size={size}
+              color={color}
+            />
+          ),
         }}
       />
       <Tabs.Screen
         name="create"
         options={{
           title: "Create",
-          tabBarIcon: () => null,
+          tabBarIcon: ({ focused, color, size }) => (
+            <Ionicons
+              name={focused ? "add-circle" : "add-circle-outline"}
+              size={size}
+              color={color}
+            />
+          ),
         }}
       />
       <Tabs.Screen
         name="events"
         options={{
           title: "Events",
-          tabBarIcon: () => null,
+          tabBarIcon: ({ focused, color, size }) => (
+            <Ionicons
+              name={focused ? "calendar" : "calendar-outline"}
+              size={size}
+              color={color}
+            />
+          ),
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
+          headerShown: false,
           title: "Profile",
-          tabBarIcon: () => null,
+          tabBarIcon: ({ focused, color, size }) => (
+            <Ionicons
+              name={focused ? "person" : "person-outline"}
+              size={size}
+              color={color}
+            />
+          ),
         }}
       />
     </Tabs>

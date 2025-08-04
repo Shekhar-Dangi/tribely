@@ -73,7 +73,7 @@ export function validateDate(dateString: string, fieldName: string): string[] {
     );
   }
 
-  return errors;
+  return [];
 }
 
 // Category validation
