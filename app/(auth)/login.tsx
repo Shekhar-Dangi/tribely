@@ -5,8 +5,9 @@ import {
   TouchableOpacity,
   Image,
   Platform,
+  ActivityIndicator,
 } from "react-native";
-import { Redirect, router, useRouter } from "expo-router";
+import { Redirect, router, useFocusEffect, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import * as AuthSession from "expo-auth-session";
 
@@ -25,11 +26,26 @@ import useOnBoarding from "../../hooks/useOnBoarding";
 export default function Login() {
   const { startSSOFlow } = useSSO();
   const { isSignedIn } = useAuth();
+  const [processing, setProcessing] = useState(false);
   console.log("login page");
   const { serverFault, status } = useOnBoarding();
   console.log(isSignedIn);
 
+  useFocusEffect(
+    useCallback(() => {
+      console.log("Login focussed");
+      if (isSignedIn && status !== undefined) {
+        if (status === true) {
+          router.replace("/(tabs)/home");
+        } else {
+          router.replace("/(onboarding)/personal-stats");
+        }
+      }
+    }, [status, isSignedIn])
+  );
+
   const handleGoogleSignIn = useCallback(async () => {
+    setProcessing(true);
     try {
       // Start the authentication process by calling `startSSOFlow()`
       const { createdSessionId, setActive, signIn, signUp } =
@@ -41,6 +57,7 @@ export default function Login() {
       // If sign in was successful, set the active session
       if (createdSessionId && setActive) {
         setActive!({ session: createdSessionId });
+        setProcessing(false);
       } else {
         // If there is no `createdSessionId`,
         // there are missing requirements, such as MFA
@@ -51,14 +68,6 @@ export default function Login() {
       console.error(JSON.stringify(err, null, 2));
     }
   }, []);
-
-  if (isSignedIn && status !== undefined) {
-    if (status === true) {
-      return <Redirect href="/(tabs)/home" />;
-    } else {
-      return <Redirect href="/(onboarding)/personal-stats" />;
-    }
-  }
 
   return (
     <View style={styles.scrollContainer}>
@@ -138,14 +147,19 @@ export default function Login() {
           activeOpacity={0.9}
         >
           <View style={styles.googleButtonContent}>
-            <Ionicons
-              name="logo-google"
-              size={20}
-              color={COLORS.white}
-              style={styles.googleIconImage}
-            />
-
-            <Text style={styles.googleButtonText}>Continue with Google</Text>
+            {processing ? (
+              <Text>
+                <ActivityIndicator />
+              </Text>
+            ) : (
+              <Ionicons
+                name="logo-google"
+                size={20}
+                color={COLORS.white}
+                style={styles.googleIconImage}
+              />
+            )}
+            <Text style={styles.googleButtonText}>Continue with Google</Text> :
           </View>
         </TouchableOpacity>
 

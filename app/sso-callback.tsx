@@ -23,7 +23,6 @@ export default function SSOCallback() {
       );
       if (isLoaded) {
         if (isSignedIn) {
-          // Wait for status to be loaded before redirecting
           if (status !== undefined) {
             if (status === true) {
               router.replace("/(tabs)/home");
@@ -31,9 +30,8 @@ export default function SSOCallback() {
               router.replace("/(onboarding)/personal-stats");
             }
           }
-          // If status is still undefined, wait for next render
         } else {
-          router.replace("/");
+          router.replace("/(auth)/login");
         }
       }
     }, 1500);

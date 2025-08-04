@@ -13,11 +13,13 @@ import { useAuth, useUser } from "@clerk/clerk-expo";
 import useOnBoarding from "../hooks/useOnBoarding";
 import { useQuery } from "convex/react";
 import { api } from "../convex/_generated/api";
+import { useState } from "react";
 
 const { height } = Dimensions.get("window");
 
 export default function Welcome() {
   const { isSignedIn, isLoaded } = useAuth();
+  const [display, setDisplay] = useState(false);
   const { user } = useUser();
   const { loading, serverFault, status } = useOnBoarding();
 
@@ -28,7 +30,10 @@ export default function Welcome() {
   );
   console.log(convexUser);
 
-  // Wait for Clerk to load
+  setTimeout(() => {
+    setDisplay(true);
+  }, 2000);
+
   if (!isLoaded) {
     return (
       <View>
@@ -42,43 +47,48 @@ export default function Welcome() {
     else if (status === false)
       return <Redirect href="/(onboarding)/personal-stats" />;
   }
-  return (
-    <ImageBackground
-      source={require("../assets/onboard.jpg")}
-      style={styles.backgroundImage}
-    >
-      <LinearGradient
-        colors={[
-          "rgba(26, 26, 26, 0.2)",
-          "rgba(26, 26, 26, 0.6)",
-          "rgba(26, 26, 26, 0.9)",
-        ]}
-        style={styles.gradientOverlay}
-      />
-      <View style={styles.contentContainer}>
-        <View style={styles.headerContainer}>
-          <Text style={styles.appName}>TRIBELY</Text>
-          <Text style={styles.tagline}>LinkedIn for Gym Bros</Text>
-        </View>
 
-        <View style={styles.bottomContainer}>
-          <Text style={styles.welcomeText}>
-            Connect with gym enthusiasts, share workouts, and grow your fitness
-            network
-          </Text>
+  if (display) {
+    return (
+      <ImageBackground
+        source={require("../assets/onboard.jpg")}
+        style={styles.backgroundImage}
+      >
+        <LinearGradient
+          colors={[
+            "rgba(26, 26, 26, 0.2)",
+            "rgba(26, 26, 26, 0.6)",
+            "rgba(26, 26, 26, 0.9)",
+          ]}
+          style={styles.gradientOverlay}
+        />
+        <View style={styles.contentContainer}>
+          <View style={styles.headerContainer}>
+            <Text style={styles.appName}>TRIBELY</Text>
+            <Text style={styles.tagline}>LinkedIn for Gym Bros</Text>
+          </View>
 
-          <Link href="/(auth)/login" asChild>
-            <TouchableOpacity
-              style={styles.getStartedButton}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.getStartedButtonText}>Get Started</Text>
-            </TouchableOpacity>
-          </Link>
+          <View style={styles.bottomContainer}>
+            <Text style={styles.welcomeText}>
+              Connect with gym enthusiasts, share workouts, and grow your
+              fitness network
+            </Text>
+
+            <Link href="/(auth)/login" asChild>
+              <TouchableOpacity
+                style={styles.getStartedButton}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.getStartedButtonText}>Get Started</Text>
+              </TouchableOpacity>
+            </Link>
+          </View>
         </View>
-      </View>
-    </ImageBackground>
-  );
+      </ImageBackground>
+    );
+  } else {
+    return <View style={{ flex: 1, backgroundColor: "black" }}></View>;
+  }
 }
 
 const styles = StyleSheet.create({
